@@ -51,18 +51,6 @@ namespace OpenMS
   {
   }
 
-  void MzIdentMLFile::load(const String & filename, Identification & id)
-  {
-    Internal::MzIdentMLHandler handler(id, filename, schema_version_, *this);
-    parse_(filename, &handler);
-  }
-
-  void MzIdentMLFile::store(const String & filename, const Identification & id) const
-  {
-    Internal::MzIdentMLHandler handler(id, filename, schema_version_, *this);
-    save_(filename, &handler);
-  }
-
   void MzIdentMLFile::store(const String & filename, const std::vector<ProteinIdentification> & poid, const std::vector<PeptideIdentification> & peid) const
   {
     Internal::MzIdentMLHandler handler(poid, peid, filename, schema_version_, *this);
