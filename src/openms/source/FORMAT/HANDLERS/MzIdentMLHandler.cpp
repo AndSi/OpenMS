@@ -51,28 +51,6 @@ namespace OpenMS
   namespace Internal
   {
 
-    MzIdentMLHandler::MzIdentMLHandler(const Identification & id, const String & filename, const String & version, const ProgressLogger & logger) :
-      XMLHandler(filename, version),
-      logger_(logger),
-      //~ ms_exp_(0),
-      id_(0),
-      cid_(&id)
-    {
-      cv_.loadFromOBO("PSI-MS", File::find("/CV/psi-ms.obo"));
-      unimod_.loadFromOBO("PSI-MS", File::find("/CV/unimod.obo"));
-    }
-
-    MzIdentMLHandler::MzIdentMLHandler(Identification & id, const String & filename, const String & version, const ProgressLogger & logger) :
-      XMLHandler(filename, version),
-      logger_(logger),
-      //~ ms_exp_(0),
-      id_(&id),
-      cid_(0)
-    {
-      cv_.loadFromOBO("PSI-MS", File::find("/CV/psi-ms.obo"));
-      unimod_.loadFromOBO("PSI-MS", File::find("/CV/unimod.obo"));
-    }
-
     MzIdentMLHandler::MzIdentMLHandler(const std::vector<ProteinIdentification> & pro_id, const std::vector<PeptideIdentification> & pep_id, const String & filename, const String & version, const ProgressLogger & logger) :
       XMLHandler(filename, version),
       logger_(logger),
@@ -223,37 +201,37 @@ namespace OpenMS
       {
         //  <SpectrumIdentificationItem id="SII_1_1"  calculatedMassToCharge="670.86261" chargeState="2" experimentalMassToCharge="671.9" Peptide_ref="peptide_1_1" rank="1" passThreshold="true">
         // required attributes
-        current_id_hit_.setId((attributeAsString_(attributes, "id")));
-        current_id_hit_.setPassThreshold(asBool_(attributeAsString_(attributes, "passThreshold")));
-        current_id_hit_.setRank(attributeAsInt_(attributes, "rank"));
+//        current_id_hit_.setId((attributeAsString_(attributes, "id")));
+//        current_id_hit_.setPassThreshold(asBool_(attributeAsString_(attributes, "passThreshold")));
+//        current_id_hit_.setRank(attributeAsInt_(attributes, "rank"));
 
         // optional attributes
         DoubleReal double_value(0);
         if (optionalAttributeAsDouble_(double_value, attributes, "calculatedMassToCharge"))
         {
-          current_id_hit_.setCalculatedMassToCharge(double_value);
+//          current_id_hit_.setCalculatedMassToCharge(double_value);
         }
 
         Int int_value(0);
         if (optionalAttributeAsInt_(int_value, attributes, "chargeState"))
         {
-          current_id_hit_.setCharge(int_value);
+//          current_id_hit_.setCharge(int_value);
         }
 
         if (optionalAttributeAsDouble_(double_value, attributes, "experimentalMassToCharge"))
         {
-          current_id_hit_.setExperimentalMassToCharge(double_value);
+//          current_id_hit_.setExperimentalMassToCharge(double_value);
         }
 
         if (optionalAttributeAsDouble_(double_value, attributes, "calculatedMassToCharge"))
         {
-          current_id_hit_.setCalculatedMassToCharge(double_value);
+//          current_id_hit_.setCalculatedMassToCharge(double_value);
         }
 
         String string_value("");
         if (optionalAttributeAsString_(string_value, attributes, "name"))
         {
-          current_id_hit_.setName(string_value);
+//          current_id_hit_.setName(string_value);
         }
 
         // TODO PeptideEvidence, pf:cvParam, pf:userParam, Fragmentation
@@ -333,8 +311,8 @@ namespace OpenMS
 
       if (tag_ == "SpectrumIdentificationItem")
       {
-        current_spectrum_id_.addHit(current_id_hit_);
-        current_id_hit_ = IdentificationHit();
+//        current_spectrum_id_.addHit(current_id_hit_);
+//        current_id_hit_ = IdentificationHit();
         return;
       }
       error(LOAD, "MzIdentMLHandler::endElement: Unkown element found: '" + tag_ + "', ignoring.");

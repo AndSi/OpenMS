@@ -28,63 +28,13 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // --------------------------------------------------------------------------
-// $Maintainer: Andreas Bertsch $
-// $Authors: $
+// $Maintainer: Stephan Aiche $
+// $Authors: Stephan Aiche $
 // --------------------------------------------------------------------------
 
-#ifndef OPENMS_METADATA_SPECTRUMIDENTIFICATION_H
-#define OPENMS_METADATA_SPECTRUMIDENTIFICATION_H
-
-#include <OpenMS/METADATA/MetaInfoInterface.h>
-#include <OpenMS/METADATA/IdentificationHit.h>
+#include <OpenMS/DATASTRUCTURES/ListUtilsIO.h>
 
 namespace OpenMS
 {
-  /**
-    @brief Represents a object which can store the information of an analysisXML instance
 
-        //@todo docu (Andreas)
-
-        @ingroup Metadata
-  */
-  class OPENMS_DLLAPI SpectrumIdentification :
-    public MetaInfoInterface
-  {
-public:
-
-    /// @name constructors,destructors,assignment operator
-    //@{
-    /// default constructor
-    SpectrumIdentification();
-    /// destructor
-    virtual ~SpectrumIdentification();
-    /// copy constructor
-    SpectrumIdentification(const SpectrumIdentification & source);
-    /// assignment operator
-    SpectrumIdentification & operator=(const SpectrumIdentification & source);
-    /// Equality operator
-    bool operator==(const SpectrumIdentification & rhs) const;
-    /// Inequality operator
-    bool operator!=(const SpectrumIdentification & rhs) const;
-    //@}
-
-    // @name Accessors
-    //@{
-    /// sets the identification hits of this spectrum identification (corresponds to single peptide hit in the list)
-    void setHits(const std::vector<IdentificationHit> & hits);
-
-    /// adds a single identification hit to the hits
-    void addHit(const IdentificationHit & hit);
-
-    /// returns the identification hits of this spectrum identification
-    const std::vector<IdentificationHit> & getHits() const;
-    //@}
-
-protected:
-
-    String id_;                                                                     ///< Identifier
-    std::vector<IdentificationHit> hits_;               ///< Single peptide hits
-  };
-
-} //namespace OpenMS
-#endif // OPENMS_METADATA_SPECTRUMIDENTIFICATION_H
+}

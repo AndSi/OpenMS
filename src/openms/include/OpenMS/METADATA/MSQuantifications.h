@@ -42,6 +42,8 @@
 #include <OpenMS/KERNEL/FeatureMap.h>
 #include <OpenMS/KERNEL/MSExperiment.h>
 #include <OpenMS/METADATA/DataProcessing.h>
+#include <OpenMS/METADATA/ProteinIdentification.h>
+#include <OpenMS/METADATA/PeptideIdentification.h>
 
 #include <vector>
 #include <map>
@@ -59,38 +61,8 @@ public:
 
     enum QUANT_TYPES {MS1LABEL = 0, MS2LABEL, LABELFREE, SIZE_OF_QUANT_TYPES};       // derived from processing applied
     static const std::string NamesOfQuantTypes[SIZE_OF_QUANT_TYPES];
-
     //@}
-    //~ InputFiles: //~ searchdb abbildung version,releasedate,#entries,dbname über paramgrouplist
-    //~ struct ParamGroupList
-    //~ {
-    //~ ParamGroupList()
-    //~ {
-    //~ }
-
-    //~ ParamGroupList(const ParamGroupList& rhs)
-    //~ :	cv_params(rhs.cv_params)
-    //~ {
-    //~ }
-
-    //~ ~ParamGroupList()
-    //~ {
-    //~ }
-
-    //~ ParamGroupList& operator = (const ParamGroupList& rhs)
-    //~ {
-    //~ if (&rhs != this)
-    //~ {
-    //~ cv_params = rhs.cv_params;
-    //~ user_params = rhs.user_params;
-    //~ }
-    //~ return *this;
-    //~ }
-
-    //~ MetaInfoInterface user_params;
-    //~ CVTermList cv_params;
-    //~ };
-
+    
     struct AnalysisSummary
     {
       AnalysisSummary()
@@ -126,7 +98,6 @@ public:
 
     struct Assay
     {
-      //TODO feature_maps_ also in Assay?! srsly?!
       Assay()
       {
       }
@@ -134,9 +105,8 @@ public:
       Assay(const Assay & rhs)
       {
         uid_ = rhs.uid_;
+        rfg_ref_ = rhs.rfg_ref_;
         mods_ = rhs.mods_;
-        raw_files_ = rhs.raw_files_;
-        feature_maps_ = rhs.feature_maps_;
       }
 
       virtual ~Assay()
@@ -148,19 +118,47 @@ public:
         if (&rhs != this)
         {
           uid_ = rhs.uid_;
+          rfg_ref_ = rhs.rfg_ref_;
           mods_ = rhs.mods_;
-          raw_files_ = rhs.raw_files_;
-          feature_maps_ = rhs.feature_maps_;
         }
         return *this;
       }
 
-      String uid_;
+      UInt64 uid_;
+      UInt64 rfg_ref_;
       std::vector<std::pair<String, DoubleReal> > mods_;
-      std::vector<ExperimentalSettings> raw_files_;
-      std::map<size_t, FeatureMap<> > feature_maps_;           // iTRAQ needs no FeatureMaps so ExperimentalSettings are not directly mapped to FeatureMaps
     };
 
+    //~ InputFiles: //~ searchdb tracking version,releasedate,#entries,dbname via paramgrouplist
+    //~ struct ParamGroupList
+    //~ {
+    //~ ParamGroupList()
+    //~ {
+    //~ }
+
+    //~ ParamGroupList(const ParamGroupList& rhs)
+    //~ :	cv_params(rhs.cv_params)
+    //~ {
+    //~ }
+
+    //~ ~ParamGroupList()
+    //~ {
+    //~ }
+
+    //~ ParamGroupList& operator = (const ParamGroupList& rhs)
+    //~ {
+    //~ if (&rhs != this)
+    //~ {
+    //~ cv_params = rhs.cv_params;
+    //~ user_params = rhs.user_params;
+    //~ }
+    //~ return *this;
+    //~ }
+
+    //~ MetaInfoInterface user_params;
+    //~ CVTermList cv_params;
+    //~ };
+    
     // TODO handle referencing from consensusmaps to featuremaps/rawfiles
     // TODO add ContactPerson or something to (Consensus)FeatureMap or DataProcessing (see below)
     // TODO rewrite OpenMS::DataProcessing - data not yet linked in openms core formats - below should go in analysissummary of MSQuantifications - input/output not possible to be carried along
@@ -184,9 +182,6 @@ public:
     /// Constructor
     MSQuantifications();
 
-    /// Detailed Constructor
-    MSQuantifications(FeatureMap<> fm, ExperimentalSettings& es, std::vector<DataProcessing>& dps, std::vector<std::vector<std::pair<String, DoubleReal> > > labels = (std::vector<std::vector<std::pair<String, DoubleReal> > >()));
-
     /// Destructor
     ~MSQuantifications();
 
@@ -202,46 +197,73 @@ public:
     /// Equality operator
     bool operator!=(const MSQuantifications & rhs) const;
 
-    /**
-        @brief Loads data from a text file.
-
-        @param filename The input file name.
-        @param trim_lines Whether or not the lines are trimmed when reading them from file.
-        @param first_n If set, only @p first_n lines the lines from the beginning of the file are read.
-
-        @note this function uses unix-style linebreaks
-
-        @exception Exception::FileNotFound is thrown if the file could not be opened.
-
-        TODO : implement
-    */
-    // void load(const String & filename, bool trim_lines = false, Int first_n = -1);
-
+    // getter & setter
     const std::vector<DataProcessing> getDataProcessingList() const;
-    const std::vector<Assay> & getAssays() const;
-    std::vector<Assay> & getAssays();
-    // std::map<String, ConsensusFeature::Ratio> & getRatios(); // TODO : implement
-    const std::vector<ConsensusMap> & getConsensusMaps() const;
-    std::vector<ConsensusMap> & getConsensusMaps();
-    void setConsensusMaps(const std::vector<ConsensusMap> & );
-    const std::vector<FeatureMap<> > & getFeatureMaps() const;
+    const std::map< UInt64, MSQuantifications::Assay > & getAssays() const;
+    std::map< UInt64, MSQuantifications::Assay> & getAssays();
+    const std::map< UInt64, ConsensusMap > & getConsensusMaps() const;
+    std::map< UInt64, ConsensusMap > & getConsensusMaps();
+    //~ void setConsensusMaps(const std::map< UInt64, ConsensusMap > & );
+    const std::map< UInt64, FeatureMap<> > & getFeatureMaps() const;
+    std::map< UInt64, FeatureMap<> > & getFeatureMaps();
     const AnalysisSummary & getAnalysisSummary() const;
     AnalysisSummary & getAnalysisSummary();
+    const std::map< UInt64, std::set<ExperimentalSettings> > & getRawFiles() const;
+    const std::vector< UInt64 > & getSourceFiles() const;
     void setDataProcessingList(std::vector<DataProcessing> & dpl);
     void setAnalysisSummaryQuantType(QUANT_TYPES r);
-    void addConsensusMap(ConsensusMap & m);
-    void assignUIDs();
-    void registerExperiment(MSExperiment<Peak1D> & exp, std::vector<std::vector<std::pair<String, DoubleReal> > > labels);
-    void registerExperiment(ExperimentalSettings & es, std::vector<DataProcessing>& dp, std::vector<std::vector<std::pair<String, DoubleReal> > > labels = (std::vector<std::vector<std::pair<String, DoubleReal> > >()));
+    
+    std::set<UInt64> getDataProcessingInRefs(UInt64 dp_ref) const;
+    UInt64 getDataProcessingOutRefs(UInt64 dp_ref) const;
+    const UInt64 featureMapWhichRaw(const UInt64 & what) const;
+    const std::vector<UInt64> rawWhichAssays(const UInt64 & what) const;
+    const std::vector<UInt64> getFeatureMapUIDs() const;
+    std::vector<FeatureMap<> > getFeatureMapVector() const;
+    
+    /// registerers
+    void addConsensusMap(ConsensusMap & m, std::vector<UInt64> file_uids);
+    void registerFeatureMap(FeatureMap<> & m, UInt64 rawfile_uid);        
+    const std::pair< std::vector<UInt64>,UInt64 > registerExperimentMap(MSExperiment<Peak1D> & exp, std::vector<std::vector<std::pair<String, DoubleReal> > > labels = (std::vector<std::vector<std::pair<String, DoubleReal> > >()));
+    
+    void registerInRefs(const UInt64 & dp_ref, const UInt64 & object_ref);
+    void registerOutRefs(const UInt64 & dp_ref, const UInt64 & object_ref);
+    
+    const std::pair< std::vector<UInt64>,UInt64 > registerExperimentMap(ExperimentalSettings & es, std::vector<DataProcessing>& dps, std::vector<std::vector<std::pair<String, DoubleReal> > > labels = (std::vector<std::vector<std::pair<String, DoubleReal> > >()));
+    
+    const UInt64 addExperiment( std::vector<UInt64> & assay_uids, MSExperiment<Peak1D> & exp);
+    const UInt64 addExperiment( std::vector<UInt64> & assay_uids ,ExperimentalSettings & es, std::vector<DataProcessing>& dps);
+    
+    ///for mzquantml consumption
+    void consume_raw_file_groups(std::map<UInt64, std::set<ExperimentalSettings> > & rfgs);       
+    void consumeDataProcessingList(std::vector<DataProcessing> & dps);
+    void consumeAssays(std::map<UInt64, MSQuantifications::Assay> & asys);
+    void consumeFeatureMap(FeatureMap<> & fm, UInt64 & rfref);
+
+    void simpleMerge(MSQuantifications& rhs);
+
+    //TODO @mths : make these private - add accessors
+    std::multimap< UInt64, UInt64 > in_data_processings_; 
+    std::map< UInt64, UInt64 > out_data_processings_; 
+    
+    std::map< UInt64, UInt64 > featuremap_to_raw_; //featuremap ids 2 rawfile ids
+    std::map< UInt64, std::vector<UInt64> > raw_to_assays_;  //rawfile ids 2 assay ids
+    std::map< UInt64, std::vector<UInt64> > consensus_to_features_; //consensusmap ids 2 featuremap ids
 
 private:
     AnalysisSummary analysis_summary_;
-    std::vector<MetaInfo> bibliographic_reference_;
-    std::vector<ConsensusMap> consensus_maps_;
-    std::vector<FeatureMap<> > feature_maps_;
-    std::vector<Assay> assays_;
+    std::map< UInt64, std::set<ExperimentalSettings> > raw_files_group_; //implicite: raw->mzml ! so:ExperimentalSettings.getUniqueId()->ms-raw xsd:ID
+    std::vector< UInt64 > source_files_; // entry is a featuremap/consensusmap UID, also present in either feature or consensus map containing the file info in DocumentIdentifier Interface 
+    // TODO @mths : add missing searchdatabase files, identification files and method files
+
     std::vector<DataProcessing> data_processings_;
+    std::map< UInt64, Assay > assays_;
+
+    std::map< UInt64, FeatureMap<> > feature_maps_;
+    std::map< UInt64, ConsensusMap > consensus_maps_;
+
+    //~ std::vector<MetaInfo> bibliographic_reference_;
     //~ std::map<String,ConsensusFeature::Ratio > ratio_calculations_;
+
   };
 
 } // namespace OpenMS

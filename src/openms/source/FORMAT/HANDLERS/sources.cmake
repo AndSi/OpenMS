@@ -5,14 +5,15 @@ set(directory source/FORMAT/HANDLERS)
 set(sources_list
 	AcqusHandler.cpp
 	FidHandler.cpp
-  IndexedMzMLDecoder.cpp
+        IndexedMzMLDecoder.cpp
 	MascotXMLHandler.cpp
 	MzDataHandler.cpp
-	MzIdentMLHandler.cpp
-	MzQuantMLHandler.cpp
+        MzIdentMLHandler.cpp
+        MzIdentMLDOMHandler.cpp
+        MzQuantMLHandler.cpp
 	MzMLHandler.cpp
-  MzMLHandlerHelper.cpp
-  MzMLSpectrumDecoder.cpp
+        MzMLHandlerHelper.cpp
+        MzMLSpectrumDecoder.cpp
 	MzXMLHandler.cpp
 	PTMXMLHandler.cpp
 	ParamXMLHandler.cpp

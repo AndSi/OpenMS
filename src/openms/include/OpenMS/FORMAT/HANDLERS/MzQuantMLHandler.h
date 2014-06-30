@@ -113,12 +113,14 @@ protected:
       /// Looks up a child CV term of @p parent_accession with the name @p name. If no such term is found, an empty term is returned.
       ControlledVocabulary::CVTerm getChildWithName_(const String & parent_accession, const String & name) const;
 
+      /// Helper method that writes a featuremaps
+      void writeFeatureMap_(String & feature_tag, const FeatureMap<> & fm, const UInt64 & rfg, UInt indentation_level);
 
-      /// Helper method that writes the featuremaps
-      void writeFeature_(String & feature_xml, const std::vector<FeatureMap<> >& fm, UInt indentation_level);
+      /// Helper method that writes a featuremaps
+      void writeConsensusMap_(String & consensus_tag, const ConsensusMap & cm, const std::vector<UInt64> & asy, UInt indentation_level);
 
-      /// Helper method that writes a source file
-      //void writeSourceFile_(std::ostream& os, const String& id, const SourceFile& software);
+      /// Helper method to parse from xml id String to UID
+      UInt64 parseUID_(String xml_id_string);
 
 
 private:
@@ -126,32 +128,38 @@ private:
       MzQuantMLHandler(const MzQuantMLHandler & rhs);
       MzQuantMLHandler & operator=(const MzQuantMLHandler & rhs);
 
-      std::map<String, std::vector<ExperimentalSettings> > current_files_;           // 1.rawfilesgroup_ref 2.inputfiles for each assay as ExperimentalSettings
-      String current_id_;
-      String current_cf_id_;
+      UInt64 current_row_ref_;
       Size current_count_;
+      int current_order_;
+      UInt64 current_featurelist_rfgref_;
 
-      std::vector<MetaInfo> up_stack_;
-      std::vector<CVTerm> cvp_stack_;
-      MSQuantifications::Assay current_assay_;
-
-      std::multimap<String, String> cm_cf_ids_;
-      std::map<String, String> f_cf_ids_;
-      std::map<String, ConsensusFeature> cf_cf_obj_;
-      std::map<String, FeatureHandle> f_f_obj_;
-      std::map<String, ConsensusFeature::Ratio> r_rtemp_;
-      std::map<String, String> numden_r_ids_;
-      std::map<String, ConsensusFeature::Ratio> r_r_obj_;
-
-      //~ Software current_sw_;
-      std::map<String, Software> current_sws_;
-      std::map<int, DataProcessing> current_orderedps_;
-      std::pair<int, DataProcessing> current_dp_;
+      std::map<UInt64, std::set<ExperimentalSettings> > current_rfgs_; // to be raw_files_group_
+      std::map<UInt64, String> current_sfs_; // to be source_files_
+      std::map<UInt64, Software> current_sws_;      
+      std::map<int, DataProcessing> current_dps_;
       std::set<DataProcessing::ProcessingAction> current_pas_;
+      std::map<UInt64, MSQuantifications::Assay> current_assays_;
+      std::map<UInt64, Feature > current_features_;
+      std::vector<DoubleReal> current_masstrace_;
 
       std::vector<String> current_col_types_;
       std::vector<DoubleReal> current_dm_values_;
       std::vector<DoubleReal> current_row_;
+
+      std::vector<UInt64> id_stack_;
+      std::vector<String> open_tag_id_stack_;
+      std::vector<MetaInfo> up_stack_;
+      std::vector<CVTerm> cvp_stack_;
+
+      //~ std::multimap<String, String> cm_cf_ids_;
+      //~ std::map<String, String> f_cf_ids_;
+      //~ std::map<String, ConsensusFeature> cf_cf_obj_;
+      //~ std::map<String, FeatureHandle> f_f_obj_;
+      //~ std::map<String, ConsensusFeature::Ratio> r_rtemp_;
+      //~ std::map<String, String> numden_r_ids_;
+      //~ std::map<String, ConsensusFeature::Ratio> r_r_obj_;
+
+
 
     };
   }   // namespace Internal

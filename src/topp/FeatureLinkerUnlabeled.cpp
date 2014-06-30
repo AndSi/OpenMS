@@ -35,6 +35,9 @@
 
 #include "FeatureLinkerBase.cpp"
 
+#include <OpenMS/FORMAT/MzQuantMLFile.h>
+#include <OpenMS/METADATA/MSQuantifications.h>
+
 using namespace OpenMS;
 using namespace std;
 
@@ -137,7 +140,7 @@ protected:
         return ILLEGAL_PARAMETERS;
       }
     }
-
+    
     //-------------------------------------------------------------
     // set up algorithm
     //-------------------------------------------------------------
@@ -151,6 +154,8 @@ protected:
     //-------------------------------------------------------------
     // load input
     ConsensusMap out_map;
+    MSQuantifications mzq, tmp;
+
     if (file_type == FileTypes::FEATUREXML)
     {
       // use map with highest number of features as reference:
@@ -194,7 +199,9 @@ protected:
         f_fxml_tmp.getOptions().setLoadConvexHull(false);
         f_fxml_tmp.getOptions().setLoadSubordinates(false);
         f_fxml_tmp.load(ins[i], tmp_map);
-
+        tmp_map.ensureUniqueId(); //this UID will go in the mzq! TODO @mths : how to get this when registering the feature in the mzq?
+        //~ msq.addFeatureMap(tmp_map);
+        
         if (i != reference_index)
         {
           algorithm->addToGroup(i, tmp_map);
@@ -266,6 +273,36 @@ protected:
       // -> the same ordering as FeatureGroupingAlgorithmUnlabeled::group applies!
       out_map.sortByMZ();
       out_map.updateRanges();
+      
+      //~ msq.registerExperiment(exp, labels);       //add assays
+      //~ msq.assignUIDs();      
+      //~ TODO for ratios?
+
+      
+    }
+    else if (file_type == FileTypes::MZQUANTML)
+    {
+      MzQuantMLFile file;
+      file.load(ins[0],mzq);
+      LOG_INFO << String(mzq.getFeatureMapVector().size()) << "|" << ins.size() << endl;
+      algorithm->setReference(0, mzq.getFeatureMapVector().back());
+      for (Size i = 1; i < ins.size(); ++i)
+      {
+        file.load(ins[i],tmp);
+        //~ if (msq.getAnalysisSummaryQuantType() != MSQuantifications::LABELFREE)
+        //~ {
+          //abort! or check while merge?
+        //~ }
+        algorithm->addToGroup(i, tmp.getFeatureMapVector().back());
+        mzq.simpleMerge(tmp);
+      }
+      out_map = algorithm->getResultMap();
+      
+      out_map.sortByMZ();
+      out_map.updateRanges();
+
+      mzq.addConsensusMap(out_map,mzq.getFeatureMapUIDs());
+      //~ addDataProcessing_(out_map, getProcessingInfo_(DataProcessing::FEATURE_GROUPING));
     }
     else
     {
@@ -297,15 +334,25 @@ protected:
       }
     }
 
-    // assign unique ids
-    out_map.applyMemberFunction(&UniqueIdInterface::setUniqueId);
+    if (file_type != FileTypes::MZQUANTML)
+    {
+      // assign unique ids
+      out_map.applyMemberFunction(&UniqueIdInterface::setUniqueId);
 
-    // annotate output with data processing info
-    addDataProcessing_(out_map, getProcessingInfo_(DataProcessing::FEATURE_GROUPING));
+      // annotate output with data processing info
+      addDataProcessing_(out_map, getProcessingInfo_(DataProcessing::FEATURE_GROUPING));
 
-    // write output
-    ConsensusXMLFile().store(out, out_map);
-
+      //~ msq.addConsensusMap(out_map); 
+      
+      // write output
+      ConsensusXMLFile().store(out, out_map);
+    }
+    else
+    {
+      MzQuantMLFile file;
+      file.store(out,mzq);
+    }
+    
     // some statistics
     map<Size, UInt> num_consfeat_of_size;
     for (ConsensusMap::const_iterator cmit = out_map.begin(); cmit != out_map.end(); ++cmit)
@@ -321,6 +368,9 @@ protected:
     LOG_INFO << "  total:      " << setw(6) << out_map.size() << endl;
 
     delete algorithm;
+    
+    //~ MzQuantMLFile msqfile;
+    //~ msqfile.store("/tmp/ul_test.msq", msq);
 
     return EXECUTION_OK;
   }

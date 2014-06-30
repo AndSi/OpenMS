@@ -60,18 +60,17 @@ START_SECTION((~MzIdentMLFile()))
 	delete ptr;
 END_SECTION
 
-START_SECTION((template <typename MapType> void load(const String& filename, Identification& id)))
-	MzIdentMLFile file;
-	Identification id;
-	file.load(OPENMS_GET_TEST_DATA_PATH("Mascot_MSMS_example.mzid"), id);
+//START_SECTION((template <typename MapType> void load(const String& filename, Identification& id)))
+//	MzIdentMLFile file;
+//	Identification id;
+//	file.load(OPENMS_GET_TEST_DATA_PATH("Mascot_MSMS_example.mzid"), id);
 	// TODO
-END_SECTION
+//END_SECTION
 
-START_SECTION((template <typename MapType> void store(const String& filename, const Identification& id) const))
-	MzIdentMLFile file;
-
-	// TODO
-END_SECTION
+//START_SECTION((template <typename MapType> void store(const String& filename, const Identification& id) const))
+//	MzIdentMLFile file;
+//	// TODO
+//END_SECTION
 
 START_SECTION(bool isValid(const String& filename, std::ostream& os = std::cerr))
   MzIdentMLFile file;

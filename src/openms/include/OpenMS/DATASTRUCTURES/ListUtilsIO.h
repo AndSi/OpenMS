@@ -28,89 +28,57 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // --------------------------------------------------------------------------
-// $Maintainer: Andreas Bertsch $
-// $Authors: $
+// $Maintainer: Stephan Aiche $
+// $Authors: Stephan Aiche $
 // --------------------------------------------------------------------------
 
-#include <OpenMS/METADATA/Identification.h>
+#ifndef OPENMS_DATASTRUCTURES_LISTUTILSIO_H
+#define OPENMS_DATASTRUCTURES_LISTUTILSIO_H
 
-using namespace std;
+#include <OpenMS/DATASTRUCTURES/ListUtils.h>
+
+#include <ostream>
+#include <iomanip>
+
+// This header collects io relevant parts of ListUtils. Separating the from the
+// rest avoids inclusion of ostream headers in a lot of classes.
 
 namespace OpenMS
 {
+  /**
+    @brief Output stream operator for std::vectors.
 
-  Identification::Identification() :
-    MetaInfoInterface(),
-    id_(),
-    creation_date_()
+    @param os The target stream.
+    @param v The vector to write to stream.
+  */
+  template <typename T>
+  inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
   {
-  }
+    // handle precision settings
+    const std::streamsize prec_save = os.precision();
+    os.precision(writtenDigits(T()));
 
-  Identification::Identification(const Identification & rhs) :
-    MetaInfoInterface(rhs),
-    id_(rhs.id_),
-    creation_date_(rhs.creation_date_),
-    spectrum_identifications_(rhs.spectrum_identifications_)
-  {
-  }
+    os << "[";
 
-  Identification::~Identification()
-  {
-  }
-
-  Identification & Identification::operator=(const Identification & rhs)
-  {
-    if (this == &rhs)
+    if (!v.empty())
     {
-      return *this;
+      std::copy(v.begin(), v.end() - 1, std::ostream_iterator<T>(os, ", "));
+      os << v.back();
     }
 
-    MetaInfoInterface::operator=(rhs);
-    id_ = rhs.id_;
-    creation_date_ = rhs.creation_date_;
-    spectrum_identifications_ = rhs.spectrum_identifications_;
-
-    return *this;
+    os << "]";
+    // set precision settings back to original values
+    os << std::setprecision(prec_save);
+    return os;
   }
 
-  // Equality operator
-  bool Identification::operator==(const Identification & rhs) const
+  /// Operator for appending entries with less code
+  template <typename TString>
+  inline std::vector<String>& operator<<(std::vector<String>& sl, const TString& string)
   {
-    return MetaInfoInterface::operator==(rhs)
-           && id_ == rhs.id_
-           && creation_date_ == rhs.creation_date_
-           && spectrum_identifications_ == rhs.spectrum_identifications_;
+    sl.push_back(string);
+    return sl;
   }
+}
 
-  // Inequality operator
-  bool Identification::operator!=(const Identification & rhs) const
-  {
-    return !(*this == rhs);
-  }
-
-  void Identification::setCreationDate(const DateTime & date)
-  {
-    creation_date_ = date;
-  }
-
-  const DateTime & Identification::getCreationDate() const
-  {
-    return creation_date_;
-  }
-
-  void Identification::setSpectrumIdentifications(const vector<SpectrumIdentification> & ids)
-  {
-    spectrum_identifications_ = ids;
-  }
-
-  void Identification::addSpectrumIdentification(const SpectrumIdentification & id)
-  {
-    spectrum_identifications_.push_back(id);
-  }
-
-  const vector<SpectrumIdentification> & Identification::getSpectrumIdentifications() const
-  {
-    return spectrum_identifications_;
-  }
-
-} // namespace OpenMS
+#endif // #ifndef
