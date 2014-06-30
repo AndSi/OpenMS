@@ -37,9 +37,6 @@ Tagging.cpp
 ScanWindow.cpp
 Product.cpp
 PeptideEvidence.cpp
-Identification.cpp
-SpectrumIdentification.cpp
-IdentificationHit.cpp
 ChromatogramSettings.cpp
 CVTerm.cpp
 CVTermList.cpp
