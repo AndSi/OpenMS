@@ -144,7 +144,7 @@ namespace OpenMS
      */
     MzIdentMLDOMHandler::~MzIdentMLDOMHandler()
     {
-      std::cout << "destroying dom tree" << std::endl;
+      //std::cout << "destroying dom tree" << std::endl;
       try
       {
          XMLString::release( &TAG_root );
@@ -158,7 +158,7 @@ namespace OpenMS
       }
 
       // Terminate Xerces
-      std::cout << "terminate xerces" << std::endl;
+      //std::cout << "terminate xerces" << std::endl;
       try
       {
          XMLPlatformUtils::Terminate();  // Terminate after release of memory
@@ -174,11 +174,9 @@ namespace OpenMS
 
     /**
      *  This function:
-     *  - Tests the access and availability of the XML configuration file.
-     *  - Configures the xerces-c DOM parser.
-     *  - Reads and extracts the pertinent information from the XML config file.
+     *  - reads mzid files
      *
-     *  @param in configFile The text string name of the HLA configuration file.
+     *  @param file.
      */
     void MzIdentMLDOMHandler::readMzIdentMLFile(string& mzid_file)
             throw( std::runtime_error )
@@ -267,7 +265,7 @@ namespace OpenMS
           if( !parseProteinDetectionListElements ) throw(std::runtime_error( "No ProteinDetectionList nodes" ));
           parseProteinDetectionListElements_(parseProteinDetectionListElements);
 
-          std::cout << "I'm done. " << std::endl << "You have " << pep_id_->size() << " PeptideIdentifications and " << pro_id_->size() << " ProteinIdentifications" << std::endl; //wtf?! 8458800 PeptideIdentifications in idxml vs. Have 5936PeptideIdentifications and 1425ProteinIdentifications
+          //std::cout << "I'm done. " << std::endl << "You have " << pep_id_->size() << " PeptideIdentifications and " << pro_id_->size() << " ProteinIdentifications" << std::endl; //wtf?! 8458800 PeptideIdentifications in idxml vs. Have 5936PeptideIdentifications and 1425ProteinIdentifications
 
        }
        catch( xercesc::XMLException& e )
@@ -554,12 +552,12 @@ namespace OpenMS
         {
           // Found element node: re-cast as element
           DOMElement* element_AnalysisSoftware = dynamic_cast< xercesc::DOMElement* >( current_as );
-          std::cout << "analysis software found: " << element_AnalysisSoftware->getAttribute(XMLString::transcode("version")) << std::endl;
+          //std::cout << "analysis software found: " << element_AnalysisSoftware->getAttribute(XMLString::transcode("version")) << std::endl;
 
           DOMElement* child = element_AnalysisSoftware->getFirstElementChild();
           while ( child )
           {
-            std::cout << "as child: " << XMLString::transcode(child->getTagName()) << std::endl;
+            //std::cout << "as child: " << XMLString::transcode(child->getTagName()) << std::endl;
             if ((std::string)XMLString::transcode(child->getTagName()) == "SoftwareName")
             {
               DOMElement* element_cv = child->getFirstElementChild();
@@ -568,13 +566,13 @@ namespace OpenMS
                   if ((std::string)XMLString::transcode(element_cv->getTagName()) == "cvParam") // cave: might also be a UserParam
                   {
                     CVTerm swcv = parseCvParam_(element_cv);
-                    std::cout << "as child cv: " << swcv.getName() << std::endl;
+                    //std::cout << "as child cv: " << swcv.getName() << std::endl;
                     if (search_engine_ == "" && search_engine_version_ == "") // TODO @mths check if cv is search engine cv!
                     {
                       search_engine_ = swcv.getName();
                       search_engine_version_ = XMLString::transcode(element_AnalysisSoftware->getAttribute(XMLString::transcode("version")));
-                      std::cout << "engine found: " << search_engine_ << std::endl;
-                      std::cout << "version found: " << search_engine_version_ << std::endl;
+                      //std::cout << "engine found: " << search_engine_ << std::endl;
+                      //std::cout << "version found: " << search_engine_version_ << std::endl;
                     }
                     //else what?! refactor software in OpenMS!!
                   }
@@ -608,7 +606,7 @@ namespace OpenMS
           DOMElement* child = element_dbs->getFirstElementChild();
           while ( child )
           {
-            std::cout << "DBSequences child" << std::endl;
+            //std::cout << "DBSequences child" << std::endl;
             if ((std::string)XMLString::transcode(child->getTagName()) == "Seq")
             {
               seq = XMLString::transcode(child->getNodeValue()); //http://mail-archives.apache.org/mod_mbox/xerces-c-users/200610.mbox/%3C7.0.1.0.2.20061004133628.046911a8@datadirect.com%3E -> dynamic_cast< xercesc::DOMNode* >
@@ -625,7 +623,7 @@ namespace OpenMS
           }
         }
       }
-      std::cout << "DBSequences found: " << count  << " / " << db_sq_map_.size() << std::endl;
+      //std::cout << "DBSequences found: " << count  << " / " << db_sq_map_.size() << std::endl;
     }
 
     void MzIdentMLDOMHandler::parsePeptideElements_(DOMNodeList * peptideElements)
@@ -650,8 +648,8 @@ namespace OpenMS
           pep_map_.insert(std::make_pair(id,aas));
         }
       }
-      std::cout << "Peptides found: " << count << std::endl;
-      std::cout << "example: " << pep_map_.begin()->first << " -> " << pep_map_.begin()->second.toString() << std::endl;
+      //std::cout << "Peptides found: " << count << std::endl;
+      //std::cout << "example: " << pep_map_.begin()->first << " -> " << pep_map_.begin()->second.toString() << std::endl;
     }
 
     void MzIdentMLDOMHandler::parsePeptideEvidenceElements_(DOMNodeList * peptideEvidenceElements)
@@ -684,7 +682,7 @@ namespace OpenMS
           pv_db_map_.insert(std::make_pair(id,dBSequence_ref));
         }
       }
-      std::cout << "PeptideEvidences found: " << count << std::endl;
+      //std::cout << "PeptideEvidences found: " << count << std::endl;
     }
 
     void MzIdentMLDOMHandler::parseSpectrumIdentificationElements_(DOMNodeList * spectrumIdentificationElements)
@@ -723,7 +721,7 @@ namespace OpenMS
           si_map_.insert(std::make_pair(id,SpectrumIdentification{spectra_data_ref, searchDatabase_ref, spectrumIdentificationProtocol_ref, spectrumIdentificationList_ref}));
         }
       }
-      std::cout << "SpectrumIdentification found: " << count << std::endl;
+      //std::cout << "SpectrumIdentification found: " << count << std::endl;
     }
 
     void MzIdentMLDOMHandler::parseSpectrumIdentificationProtocolElements_(DOMNodeList * spectrumIdentificationProtocolElements)
@@ -859,7 +857,7 @@ namespace OpenMS
           sp_map_.insert(std::make_pair(id,SpectrumIdentificationProtocol{searchtype,enzyme,param_cv,param_up,modparam,p_tol,f_tol,tcv,tup}));
         }
       }
-      std::cout << "SpectrumIdentificationProtocol found: " << count << std::endl;
+      //std::cout << "SpectrumIdentificationProtocol found: " << count << std::endl;
     }
 
     void MzIdentMLDOMHandler::parseInputElements_(DOMNodeList * inputElements)
@@ -913,7 +911,7 @@ namespace OpenMS
             input_dbs_.insert(std::make_pair(id, DatabaseInput{dbname,location,version,releaseDate}));
           }
         }
-        std::cout << "InputFiles found: " << count << std::endl;
+        //std::cout << "InputFiles found: " << count << std::endl;
       }
     }
 
@@ -959,8 +957,8 @@ namespace OpenMS
 
         }
       }
-      std::cout << "SpectrumIdentificationResults found: " << count << std::endl;
-      std::cout << "example: " << pep_id_->back().getHits().size() << std::endl;
+      //std::cout << "SpectrumIdentificationResults found: " << count << std::endl;
+      //std::cout << "example: " << pep_id_->back().getHits().size() << std::endl;
     }
 
     void MzIdentMLDOMHandler::parseSpectrumIdentificationItemElement_(DOMElement * spectrumIdentificationItemElement, PeptideIdentification& spectrum_identification)
@@ -1004,6 +1002,10 @@ namespace OpenMS
           {
             hit.setMetaValue(cvs->first, cv->getValue());
           }
+      }
+      for (std::map<String,DataValue>::const_iterator up = params.second.begin(); up != params.second.end(); ++up)
+      {
+        hit.setMetaValue(up->first, up->second);
       }
       spectrum_identification.insertHit(hit);
 
@@ -1074,8 +1076,8 @@ namespace OpenMS
           }
 
         }
-        std::cout << "ProteinDetectionLists found: " << count << std::endl;
-        std::cout << "ProteinAmbiguityGroups found: " << count_ag << std::endl;
+        //std::cout << "ProteinDetectionLists found: " << count << std::endl;
+        //std::cout << "ProteinAmbiguityGroups found: " << count_ag << std::endl;
       }
     }
 
@@ -1135,7 +1137,7 @@ namespace OpenMS
             }
             else
             {
-              std::cout << "going to throw up from <PeptideSequence>" << std::endl;
+              //std::cout << "going to throw up from <PeptideSequence>" << std::endl;
               throw "ERROR : Non Text Node";
             }
           }
